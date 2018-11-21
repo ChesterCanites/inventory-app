@@ -1,7 +1,22 @@
-//load server using express
 const express = require('express')
 const app = express()
 const mysql = require('mysql')
+const bodyParser = require('body-parser')
+
+app.use(bodyParser.urlencoded({
+    extended: false
+}))
+
+// app.use(bodyParser.json())
+
+
+// Constants
+const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'password',
+    database: 'inventory'
+})
 
 // ----ROUTES---- //
 
@@ -9,14 +24,10 @@ const mysql = require('mysql')
 
 // get all inventory
 app.get("/inventory", (req, res) => {
-    const connection = mysql.createConnection({
-        host: 'localhost',
-        user: 'root',
-        password: 'password',
-        database: 'inventory'
-    })
+
     connection.query("SELECT * FROM items", (err, rows, fields) => {
-        console.log("Successfully fetch items")
+
+        console.log("Successfully fetched items")
         res.json(rows)
     })
 })
@@ -25,21 +36,52 @@ app.get("/inventory", (req, res) => {
 app.get("/inventory/:id", (req, res) => {
     const id = req.params.id
     const query = "SELECT * FROM items WHERE id = ?"
-    const connection = mysql.createConnection({
-        host: 'localhost',
-        user: 'root',
-        password: 'password',
-        database: 'inventory'
-    })
 
     connection.query(query,  [id], (err, rows, fields) => {
-        console.log("Successfully fetch item")
+        console.log("Successfully fetched item")
         res.json(rows)
     })
-    
+
 })
 
-// POST METHOD
+// POST METHODS
+// Add item to inventory
+app.post("/create_item", (req, res) => {
+    // connection.connect(function(err) {
+    //   if (err) throw err;
+    //
+    //   const name = req.body.name
+    //   const qty = req.body.qty
+    //   const amount = req.body.amount
+    //   console.log("Connected!");
+    //   const sql = "INSERT INTO items (name, qty, amount) VALUES (?, ?, ?)";
+    //
+    //   connection.query(sql, [name, qty, amount], (err, result) => {
+    //     if (err) throw err;
+    //     console.log("1 record inserted");
+    //     res.json(result)
+    //   })
+    // })
+    const newItem = req.body
+    const name = req.body.name
+    const qty = req.body.qty
+    const amount = req.body.amount
+
+    console.log("Connected!");
+    const query = "INSERT INTO items (name, qty, amount) VALUES (?, ?, ?)";
+
+    connection.query(query, [name, qty, amount], (err, rows ,result) => {
+        if (err) throw err;
+        console.log("1 record inserted");
+        res.end("Post Successfully: \n" + JSON.stringify(newItem, null, 4))
+    })
+
+
+    // console.log('creating an item')
+    // console.log(item)
+    // res.end()
+})
+
 // PUT METHOD
 // DELETE METHOD
 
