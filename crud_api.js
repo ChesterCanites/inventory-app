@@ -47,21 +47,7 @@ app.get("/inventory/:id", (req, res) => {
 // POST METHODS
 // Add item to inventory
 app.post("/create_item", (req, res) => {
-    // connection.connect(function(err) {
-    //   if (err) throw err;
-    //
-    //   const name = req.body.name
-    //   const qty = req.body.qty
-    //   const amount = req.body.amount
-    //   console.log("Connected!");
-    //   const sql = "INSERT INTO items (name, qty, amount) VALUES (?, ?, ?)";
-    //
-    //   connection.query(sql, [name, qty, amount], (err, result) => {
-    //     if (err) throw err;
-    //     console.log("1 record inserted");
-    //     res.json(result)
-    //   })
-    // })
+
     const newItem = req.body
     const name = req.body.name
     const qty = req.body.qty
@@ -77,9 +63,6 @@ app.post("/create_item", (req, res) => {
     })
 
 
-    // console.log('creating an item')
-    // console.log(item)
-    // res.end()
 })
 
 // PUT METHOD
