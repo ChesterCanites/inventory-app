@@ -51,15 +51,15 @@ app.get("/api/inventory/:id", (req, res) => {
 app.post("/api/inventory", (req, res) => {
 
     const newItem = req.body
-    const id = newItem.id
-    const name = newItem.name
-    const qty = newItem.qty
-    const amount = newItem.amount
+    const id = req.body.id
+    const name = req.body.name
+    const qty = req.body.qty
+    const amount = req.body.amount
 
     console.log("Connected!");
     const query = "INSERT INTO items (id, name, qty, amount) VALUES (?, ?, ?, ?)";
 
-    connection.query(query, [name, qty, amount], (err, rows ,result) => {
+    connection.query(query, [id, name, qty, amount], (err, rows ,result) => {
         if (err) throw err;
         console.log("1 record inserted");
         res.end(JSON.stringify(newItem, null, 4))
@@ -92,12 +92,19 @@ app.put("/api/inventory/:id", (req, res) => {
                 console.log("Record Updated");
                 res.end(JSON.stringify(item[0], null, 4))
             })
-            // res.end(JSON.stringify(item[0], null, 4))
     })
 })
 
 // DELETE METHOD
+app.delete("/api/inventory/:id", (req, res) => {
+    const itemId = req.params.id
+    const query = "DELETE FROM items WHERE id = ?"
+    connection.query(query, [itemId], (err, rows, fields) => {
+        console.log("item deleted")
+        res.json({ message: 'item has been deleted'})
+    })
 
+})
 
 // listen on localhost:8001
 app.listen(port, hostname,() => {
