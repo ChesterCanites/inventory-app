@@ -29,8 +29,17 @@ const port = 8001
 app.get("/api/inventory", (req, res) => {
 
     connection.query("SELECT * FROM items", (err, rows, fields) => {
-        console.log("Successfully fetched items")
-        res.json(rows)
+        if(err){
+            throw err
+        }else{
+            if(rows && rows.length){
+                console.log("Successfully fetched items")
+                res.json(rows)
+            }else{
+                console.log("No items found")
+                res.json({ message: 'Empty'})
+            }
+        }
     })
 })
 
@@ -40,8 +49,18 @@ app.get("/api/inventory/:id", (req, res) => {
     const query = "SELECT * FROM items WHERE id = ?"
 
     connection.query(query,  [id], (err, rows, fields) => {
-        console.log("Successfully fetched item")
-        res.json(rows)
+        if(err){
+            throw err
+        }else{
+            if(rows && rows.length){
+                console.log("Successfully fetched item")
+                res.json(rows)
+            }else{
+                console.log("No such item found")
+                res.json({ message: 'item not found'})
+            }
+        }
+        // res.json(rows)
     })
 
 })
@@ -60,9 +79,12 @@ app.post("/api/inventory", (req, res) => {
     const query = "INSERT INTO items (id, name, qty, amount) VALUES (?, ?, ?, ?)";
 
     connection.query(query, [id, name, qty, amount], (err, rows ,result) => {
-        if (err) throw err;
-        console.log("1 record inserted");
-        res.end(JSON.stringify(newItem, null, 4))
+        if (err){
+            throw err
+        }else{
+            console.log("1 record inserted")
+            res.json({ message: 'Successfully Added record'})
+        }
     })
 })
 
@@ -73,25 +95,35 @@ app.put("/api/inventory/:id", (req, res) => {
     const query1 = "SELECT * FROM items WHERE id = ?"
 
     connection.query(query1,  [itemId], (err, rows, fields) => {
-        console.log("Successfully fetched item")
-        for (var i of rows)
-            item.push(i)
-            console.log(item[0].id)
+        if(err){
+            throw err
+        }else {
+            if(rows && rows.length){
+                console.log("Successfully fetched item")
+                for (var i of rows)
+                    item.push(i)
 
-            const keys = Object.keys(req.body)
-            console.log(req.body)
+                    const keys = Object.keys(req.body)
 
-            keys.forEach(key => {
-                console.log(item[0])
-                item[0][key] = req.body[key]
-            })
+                    keys.forEach(key => {
+                        item[0][key] = req.body[key]
+                    })
 
-            const query2 = "UPDATE items SET name = ?, qty = ?, amount = ? WHERE id = ?";
-            connection.query(query2, [item[0].name, item[0].qty, item[0].amount, item[0].id], (err, rows, fields) => {
-                if (err) throw err;
-                console.log("Record Updated");
-                res.end(JSON.stringify(item[0], null, 4))
-            })
+                    const query2 = "UPDATE items SET name = ?, qty = ?, amount = ? WHERE id = ?";
+                    connection.query(query2, [item[0].name, item[0].qty, item[0].amount, item[0].id], (err, rows, fields) => {
+                        if (err){
+                            throw err
+                        }else{
+                            console.log("Record Updated");
+                            res.end(JSON.stringify(item[0], null, 4))
+                        }
+
+                    })
+            }else {
+                res.json({message: 'no such item to modify'})
+            }
+        }
+
     })
 })
 
@@ -100,8 +132,19 @@ app.delete("/api/inventory/:id", (req, res) => {
     const itemId = req.params.id
     const query = "DELETE FROM items WHERE id = ?"
     connection.query(query, [itemId], (err, rows, fields) => {
-        console.log("item deleted")
-        res.json({ message: 'item has been deleted'})
+        if(err){
+            throw err
+        }else{
+            if(rows.affectedRows){
+                console.log("item deleted")
+                console.log(rows)
+                res.json({ message: 'item has been deleted'})
+            }else{
+                console.log("No such item to delete")
+                res.json({ message: 'No such item to delete'})
+            }
+
+        }
     })
 
 })
